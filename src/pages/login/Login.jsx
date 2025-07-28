@@ -3,24 +3,23 @@ import Input from "../../components/Input";
 import { useForm } from "react-hook-form";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import { FaFacebookF } from "react-icons/fa";
 import SignupBg from "../../assets/images/signup-BG.jpg";
 import Logo from "../../assets/images/Logo.svg";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { registerUser } from "../../firebase/firebaseConfig";
-import { countries } from "../../countries";
+import { signInUser } from "../../firebase/firebaseConfig";
 
-function Signup() {
+function Login() {
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
   } = useForm();
-
+  const navigate = useNavigate();
   const password = watch("password", "");
 
   // Validation checks
@@ -29,15 +28,16 @@ function Signup() {
   const hasLower = /[a-z]/.test(password);
   const hasUpper = /[A-Z]/.test(password);
 
-  const onSubmit = (data) => {
-    console.log(data.country);
-    registerUser(
-      data.email,
-      data.password,
-      data.name,
-      data.phone,
-      data.country
-    );
+  const onSubmit = async (data) => {
+    const user = await signInUser(data.email, data.password);
+
+    try {
+      if (user) {
+        navigate("/profile");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -52,20 +52,8 @@ function Signup() {
             <figure className="flex justify-center">
               <img src={Logo} alt="" />
             </figure>
-            <h2 className="font-bold text-4xl text-center">Signup</h2>
-            <Input
-              register={register}
-              name="name"
-              errors={errors}
-              attributes={{
-                required: "Name is required",
-                minLength: {
-                  value: 4,
-                  message: "Name must be at least 4 characters",
-                },
-              }}
-              type="text"
-            />
+            <h2 className="font-bold text-4xl text-center">Login</h2>
+
             <Input
               register={register}
               name="email"
@@ -107,41 +95,17 @@ function Signup() {
               }}
               type="password"
             />
-            <Input
-              register={register}
-              name="confirmPassword"
-              errors={errors}
-              attributes={{
-                required: "Confirm Password is required",
-                validate: (value) =>
-                  value === password || "Passwords do not match",
-              }}
-              type="password"
-            />
-            <Select countries={countries} register={register} name="country" />
-            <Input
-              register={register}
-              name="phone"
-              errors={errors}
-              attributes={{
-                required: "provide phone numebr",
-                pattern: {
-                  value: /^01[0125][0-9]{8}$/i,
-                  message: "Invalid phone",
-                },
-              }}
-              type="number"
-            />
-            <Button className="bg-[#0A6ADA] text-white">Signup</Button>
+
+            <Button className="bg-[#0A6ADA] text-white">Login</Button>
           </form>
           <p className="text-center">
-            Already have an account?{" "}
-            <Link to="/login" className="font-medium text-[#0A6ADA]">
-              Login
+            Don’t have an account?{" "}
+            <Link to="/signup" className="font-medium text-[#0A6ADA]">
+              Register
             </Link>
           </p>
           <h3 className="text-center">
-            <span className="font-medium">Signup</span> with Others
+            <span className="font-medium">Login</span> with Others
           </h3>
           <Button
             icon={<FaGoogle />}
@@ -168,4 +132,4 @@ function Signup() {
   );
 }
 
-export default Signup;
+export default Login;

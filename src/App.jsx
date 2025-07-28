@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { Root, Signup } from "./pages/pages";
+import { Login, Profile, Root, Signup } from "./pages/pages";
+import { profileLoader } from "./firebase/firebaseConfig";
 
 let router = createBrowserRouter([
   {
@@ -8,10 +9,19 @@ let router = createBrowserRouter([
     Component: Root,
     children: [
       {
-        path: "signup",
-        Component: Signup,
+        path: "profile",
+        Component: Profile,
+        loader: profileLoader,
       },
     ],
+  },
+  {
+    path: "signup",
+    Component: Signup,
+  },
+  {
+    path: "login",
+    Component: Login,
   },
 ]);
 
