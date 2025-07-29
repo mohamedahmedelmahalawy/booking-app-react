@@ -1,13 +1,22 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { Login, Profile, Root, Signup } from "./pages/pages";
+import { Home, Login, Profile, Root, Signup } from "./pages/pages";
 import { profileLoader } from "./firebase/firebaseConfig";
+
+import { HydrateFallback } from "./pages/home/Home";
+import homeLoader from "./loaders/HomeLoader";
 
 let router = createBrowserRouter([
   {
     path: "/",
     Component: Root,
     children: [
+      {
+        index: true,
+        Component: Home,
+        loader: homeLoader,
+        hydrateFallbackElement: <HydrateFallback />,
+      },
       {
         path: "profile",
         Component: Profile,

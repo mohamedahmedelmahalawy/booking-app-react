@@ -118,7 +118,12 @@ function Signup() {
               }}
               type="password"
             />
-            <Select countries={countries} register={register} name="country" />
+            <Select
+              data={countries}
+              register={register}
+              name="country"
+              className="py-2"
+            />
             <Input
               register={register}
               name="phone"
