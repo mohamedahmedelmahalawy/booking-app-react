@@ -1,4 +1,4 @@
-import { AxiosInterceptor } from "../interceptor/interceptor";
+import { AxiosInterceptor } from "../../interceptor/interceptor";
 
 export default function recommendedHotelsLoader() {
   const bestOffer = AxiosInterceptor.get("/recommended_hotels")

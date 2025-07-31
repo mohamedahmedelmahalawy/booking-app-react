@@ -10,7 +10,12 @@ import SignupBg from "../../assets/images/signup-BG.jpg";
 import Logo from "../../assets/images/Logo.svg";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { signInUser } from "../../firebase/firebaseConfig";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  loginUser,
+  selectAuthLoading,
+  selectAuthError,
+} from "../../store/authSlice";
 
 function Login() {
   const {
@@ -20,23 +25,26 @@ function Login() {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
-  const password = watch("password", "");
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthLoading);
+  const error = useSelector(selectAuthError);
 
-  // Validation checks
+  const password = watch("password", "");
   const isLongEnough = password.length >= 8;
   const hasNumber = /\d/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasUpper = /[A-Z]/.test(password);
 
   const onSubmit = async (data) => {
-    const user = await signInUser(data.email, data.password);
-
     try {
-      if (user) {
+      const result = await dispatch(
+        loginUser({ email: data.email, password: data.password })
+      ).unwrap();
+      if (result) {
         navigate("/profile");
       }
     } catch (error) {
-      console.log(error);
+      console.log("Login failed:", error);
     }
   };
 
@@ -53,6 +61,12 @@ function Login() {
               <img src={Logo} alt="" />
             </figure>
             <h2 className="font-bold text-4xl text-center">Login</h2>
+
+            {error && (
+              <div className="bg-red-100 px-4 py-3 border border-red-400 rounded text-red-700">
+                {error}
+              </div>
+            )}
 
             <Input
               register={register}
@@ -74,7 +88,8 @@ function Login() {
               attributes={{
                 required: "Password is required",
                 pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/,
                   message: (
                     <ul style={{ marginTop: 8, marginBottom: 8 }}>
                       <li style={{ color: isLongEnough ? "green" : "red" }}>
@@ -89,17 +104,29 @@ function Login() {
                       <li style={{ color: hasUpper ? "green" : "red" }}>
                         At least 1 uppercase letter
                       </li>
+                      <li
+                        style={{
+                          color: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(
+                            password
+                          )
+                            ? "green"
+                            : "red",
+                        }}
+                      >
+                        At least 1 special character
+                      </li>
                     </ul>
                   ),
                 },
               }}
               type="password"
             />
-
-            <Button className="bg-[#0A6ADA] text-white">Login</Button>
+            <Button className="bg-[#0A6ADA] text-white" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </Button>
           </form>
           <p className="text-center">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Link to="/signup" className="font-medium text-[#0A6ADA]">
               Register
             </Link>

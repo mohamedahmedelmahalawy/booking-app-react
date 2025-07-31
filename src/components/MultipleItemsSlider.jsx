@@ -6,19 +6,29 @@ function MultipleItemsSlider({ className, recommendedHotels }) {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 3,
-    variableWidth: true,
+    slidesToShow: 2,
+    slidesToScroll: 2,
+    variableWidth: false,
     rows: 1,
     slidesPerRow: 1,
+    centerMode: false,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
   };
 
   return (
     <div className={`slider-container relative ${className}`}>
       <Slider {...settings}>
         {recommendedHotels.map((hotel) => (
-          <div key={hotel.id} className="min-w-[462px]">
-            <SliderCard {...hotel} />
+          <div key={hotel.id} className="px-2 w-full max-w-full">
+            <SliderCard {...hotel} className="w-full max-w-full" />
           </div>
         ))}
       </Slider>

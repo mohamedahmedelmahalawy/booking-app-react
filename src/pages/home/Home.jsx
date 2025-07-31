@@ -8,7 +8,7 @@ function Home() {
   const bestOffers = useLoaderData().bestOffers;
   const recommendedHotels = useLoaderData().recommendedHotels;
   return (
-    <div className="flex flex-col pt-10 w-full">
+    <div className="flex flex-col gap-10 pt-10 w-full">
       <MultipleItemsSlider
         variableWidth={true}
         className="mx-auto w-[calc(100%-100px)] max-w-none"

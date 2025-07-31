@@ -1,10 +1,24 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./App.css";
-import { Home, Login, Profile, Root, Signup } from "./pages/pages";
-import { profileLoader } from "./firebase/firebaseConfig";
-
+import {
+  Details,
+  Home,
+  Login,
+  Profile,
+  Root,
+  Search,
+  Signup,
+  Payment,
+  MyBookings,
+} from "./pages/pages";
 import { HydrateFallback } from "./pages/home/Home";
-import homeLoader from "./loaders/HomeLoader";
+import SearchFallback from "./pages/Search/SearchFallback";
+import homeLoader from "./loaders/homeloaders/HomeLoader";
+import HomeError from "./pages/home/HomeError";
+import searchLoader from "./loaders/searchloaders/searchLoaders";
+import SearchError from "./pages/Search/SearchError";
+import detailsPageLoader from "./loaders/detailsloader/detailsPageLoader";
+import PrivateRoute from "./components/PrivateRoute";
 
 let router = createBrowserRouter([
   {
@@ -15,12 +29,46 @@ let router = createBrowserRouter([
         index: true,
         Component: Home,
         loader: homeLoader,
+        errorElement: <HomeError />,
         hydrateFallbackElement: <HydrateFallback />,
       },
       {
         path: "profile",
-        Component: Profile,
-        loader: profileLoader,
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "bookings",
+        element: (
+          <PrivateRoute>
+            <MyBookings />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "search",
+        Component: Search,
+        loader: searchLoader,
+        errorElement: <SearchError />,
+        hydrateFallbackElement: <SearchFallback />,
+      },
+      {
+        path: "/:id",
+        Component: Details,
+        loader: detailsPageLoader,
+        hydrateFallbackElement: <SearchFallback />,
+      },
+      {
+        path: "/payment",
+        element: (
+          <PrivateRoute>
+            <Payment />
+          </PrivateRoute>
+        ),
+        hydrateFallbackElement: <SearchFallback />,
       },
     ],
   },

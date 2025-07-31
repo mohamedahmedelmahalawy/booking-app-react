@@ -3,3 +3,7 @@ export { default as Signup } from "./signup/Signup";
 export { default as Login } from "./login/Login";
 export { default as Profile } from "./profile/Profile";
 export { default as Home } from "./home/Home";
+export { default as Search } from "./Search/Search";
+export { default as Details } from "./details/Details";
+export { default as Payment } from "./payment/Payment";
+export { default as MyBookings } from "./bookings/MyBookings";

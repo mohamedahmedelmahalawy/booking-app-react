@@ -3,14 +3,19 @@ import Input from "../../components/Input";
 import { useForm } from "react-hook-form";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import { FaFacebookF } from "react-icons/fa";
 import SignupBg from "../../assets/images/signup-BG.jpg";
 import Logo from "../../assets/images/Logo.svg";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { registerUser } from "../../firebase/firebaseConfig";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signupUser,
+  selectAuthLoading,
+  selectAuthError,
+} from "../../store/authSlice";
 import { countries } from "../../countries";
 
 function Signup() {
@@ -21,23 +26,35 @@ function Signup() {
     formState: { errors },
   } = useForm();
 
-  const password = watch("password", "");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loading = useSelector(selectAuthLoading);
+  const error = useSelector(selectAuthError);
 
-  // Validation checks
+  const password = watch("password", "");
   const isLongEnough = password.length >= 8;
   const hasNumber = /\d/.test(password);
   const hasLower = /[a-z]/.test(password);
   const hasUpper = /[A-Z]/.test(password);
 
-  const onSubmit = (data) => {
-    console.log(data.country);
-    registerUser(
-      data.email,
-      data.password,
-      data.name,
-      data.phone,
-      data.country
-    );
+  const onSubmit = async (data) => {
+    try {
+      const result = await dispatch(
+        signupUser({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          phone: data.phone,
+          country: data.country,
+        })
+      ).unwrap();
+
+      if (result) {
+        navigate("/profile");
+      }
+    } catch (error) {
+      console.log("Signup failed:", error);
+    }
   };
 
   return (
@@ -53,6 +70,13 @@ function Signup() {
               <img src={Logo} alt="" />
             </figure>
             <h2 className="font-bold text-4xl text-center">Signup</h2>
+
+            {error && (
+              <div className="bg-red-100 px-4 py-3 border border-red-400 rounded text-red-700">
+                {error}
+              </div>
+            )}
+
             <Input
               register={register}
               name="name"
@@ -86,7 +110,8 @@ function Signup() {
               attributes={{
                 required: "Password is required",
                 pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
+                  value:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]).{8,}$/,
                   message: (
                     <ul style={{ marginTop: 8, marginBottom: 8 }}>
                       <li style={{ color: isLongEnough ? "green" : "red" }}>
@@ -100,6 +125,17 @@ function Signup() {
                       </li>
                       <li style={{ color: hasUpper ? "green" : "red" }}>
                         At least 1 uppercase letter
+                      </li>
+                      <li
+                        style={{
+                          color: /[!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]/.test(
+                            password
+                          )
+                            ? "green"
+                            : "red",
+                        }}
+                      >
+                        At least 1 special character
                       </li>
                     </ul>
                   ),
@@ -122,22 +158,32 @@ function Signup() {
               data={countries}
               register={register}
               name="country"
+              selectTitle="Select Country"
               className="py-2"
+              attributes={{
+                required: "Country is required",
+              }}
             />
             <Input
               register={register}
               name="phone"
               errors={errors}
               attributes={{
-                required: "provide phone numebr",
+                required: "Provide phone number",
                 pattern: {
-                  value: /^01[0125][0-9]{8}$/i,
-                  message: "Invalid phone",
+                  value: /^[0-9]+$/,
+                  message: "Phone must be numbers only",
+                },
+                maxLength: {
+                  value: 12,
+                  message: "Phone must be at most 12 digits",
                 },
               }}
               type="number"
             />
-            <Button className="bg-[#0A6ADA] text-white">Signup</Button>
+            <Button className="bg-[#0A6ADA] text-white" disabled={loading}>
+              {loading ? "Creating account..." : "Signup"}
+            </Button>
           </form>
           <p className="text-center">
             Already have an account?{" "}

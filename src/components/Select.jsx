@@ -1,4 +1,4 @@
-function Select({ register, name, attributes, data, className }) {
+function Select({ register, name, attributes, data, className, selectTitle }) {
   return (
     <select
       className={`bg-[#F7F9FB]  border-[#EAEBEC] border-2 outline-none font-medium text-[#4D556F] text-sm ${className}`}
@@ -7,7 +7,7 @@ function Select({ register, name, attributes, data, className }) {
       autoComplete="true"
     >
       <option value="" disabled>
-        Country Name
+        {selectTitle}
       </option>
       {data.map((country) => (
         <option key={country.id} value={country.value}>
